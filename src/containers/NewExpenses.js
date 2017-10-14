@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { withRouter } from 'react-router-dom'
 import getWeb3 from '../utils/getWeb3'
 
 import ExpensesFactoryContract from '../../build/contracts/ExpensesFactory.json'
@@ -18,7 +19,8 @@ class NewExpenses extends Component {
       description: '',
       funders: [],
       spenders: [],
-      limit: 0
+      limit: 0,
+      formIsValid: false
     }
   }
 
@@ -51,6 +53,8 @@ class NewExpenses extends Component {
   }
 
   createExpenses() {
+
+    const self = this
     const contract = require('truffle-contract')
     const expensesFactoryContract = contract(ExpensesFactoryContract)
     expensesFactoryContract.setProvider(this.state.web3.currentProvider)
@@ -63,12 +67,25 @@ class NewExpenses extends Component {
       }).then((result) => {
         return expensesFactoryInstance.getContracts.call({from: accounts[0]})
       }).then((result) => {
-        console.log(result);
+        self.props.history.push('/')
       })
     })
   }
 
+  validate(name, description, limit, funders, spenders) {
+    return {
+      name: name.length < 1,
+      description: description.length < 1,
+      limit: limit < 1,
+      funders: funders.length < 1,
+      spenders: spenders.length < 1
+    }
+  }
+
   render() {
+    const errors = this.validate(this.state.name, this.state.description, this.state.limit, this.state.funders, this.state.spenders)
+    const isEnabled = !Object.keys(errors).some(x => errors[x]);
+
     return (
       <div className="App">
         <nav className="navbar pure-menu pure-menu-horizontal">
@@ -115,7 +132,7 @@ class NewExpenses extends Component {
                     onChange={e => this.updateAddresses('funders', e.target.value)}
                     defaultValue={this.state.funders}/>
                 </fieldset>
-                <button type="submit" className="pure-button pure-button-primary" onClick={e => this.submitProposal(e)}>Submit</button>
+                <button type="submit" className="pure-button pure-button-primary" onClick={e => this.submitProposal(e)} disabled={!isEnabled}>Submit</button>
               </form>
             </div>
           </div>
@@ -125,4 +142,4 @@ class NewExpenses extends Component {
   }
 }
 
-export default NewExpenses
+export default withRouter(NewExpenses)
