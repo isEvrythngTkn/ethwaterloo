@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { withRouter } from 'react-router-dom'
 import getWeb3 from '../utils/getWeb3'
 
 import ExpensesFactoryContract from '../../build/contracts/ExpensesFactory.json'
@@ -51,6 +52,8 @@ class NewExpenses extends Component {
   }
 
   createExpenses() {
+
+    const self = this
     const contract = require('truffle-contract')
     const expensesFactoryContract = contract(ExpensesFactoryContract)
     expensesFactoryContract.setProvider(this.state.web3.currentProvider)
@@ -63,7 +66,7 @@ class NewExpenses extends Component {
       }).then((result) => {
         return expensesFactoryInstance.getContracts.call({from: accounts[0]})
       }).then((result) => {
-        console.log(result);
+        self.props.history.push('/')
       })
     })
   }
@@ -125,4 +128,4 @@ class NewExpenses extends Component {
   }
 }
 
-export default NewExpenses
+export default withRouter(NewExpenses)
