@@ -80,6 +80,7 @@ contract Expenses {
     spenders = _spenders;
     funders = _funders;
     state = PROPOSED;
+    // change for the sake of change
   } 
 
   function createTransaction(uint transactionID, uint amountInCents, uint amountInSAI, bytes32 transactionDescription, bytes3 currency, address spender) 
