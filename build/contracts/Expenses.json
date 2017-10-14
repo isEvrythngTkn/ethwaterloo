@@ -1,0 +1,121 @@
+{
+  "contract_name": "Expenses",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "transactionID",
+          "type": "uint256"
+        },
+        {
+          "name": "amountInCents",
+          "type": "uint256"
+        },
+        {
+          "name": "transactionDescription",
+          "type": "bytes32"
+        },
+        {
+          "name": "currency",
+          "type": "bytes3"
+        },
+        {
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "name": "createTransaction",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "limitInCents",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "description",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "spenders",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "_name",
+          "type": "bytes32"
+        },
+        {
+          "name": "_description",
+          "type": "bytes32"
+        },
+        {
+          "name": "_limitInCents",
+          "type": "uint256"
+        },
+        {
+          "name": "_spenders",
+          "type": "address[]"
+        },
+        {
+          "name": "_funders",
+          "type": "address[]"
+        }
+      ],
+      "payable": false,
+      "type": "constructor"
+    }
+  ],
+  "unlinked_binary": "0x6060604052341561000f57600080fd5b6040516104473803806104478339810160405280805191906020018051919060200180519190602001805182019190602001805190910190505b600085905560018490556002839055600382805161006b92916020019061008b565b50600481805161007f92916020019061008b565b505b505050505061011e565b8280548282559060005260206000209081019282156100e2579160200282015b828111156100e25782518254600160a060020a031916600160a060020a0391909116178255602092909201916001909101906100ab565b5b506100ef9291506100f3565b5090565b61011b91905b808211156100ef578054600160a060020a03191681556001016100f9565b5090565b90565b61031a8061012d6000396000f300606060405263ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166306fdde03811461006957806322a1816c1461008e5780634c401e2b146100e85780637284e4161461010d57806387cab37e14610132575b600080fd5b341561007457600080fd5b61007c610171565b60405190815260200160405180910390f35b341561009957600080fd5b6100e66004356024356044357cffffffffffffffffffffffffffffffffffffffffffffffffffffffffff196064351673ffffffffffffffffffffffffffffffffffffffff60843516610177565b005b34156100f357600080fd5b61007c61027c565b60405190815260200160405180910390f35b341561011857600080fd5b61007c610282565b60405190815260200160405180910390f35b341561013d57600080fd5b610148600435610288565b60405173ffffffffffffffffffffffffffffffffffffffff909116815260200160405180910390f35b60005481565b61017f6102c7565b84815260208082018590527cffffffffffffffffffffffffffffffffffffffffffffffffffffffffff19841660408084019190915273ffffffffffffffffffffffffffffffffffffffff8416606084015260008881526005909252902081908151815560208201516001820155604082015160028201805462ffffff19167d01000000000000000000000000000000000000000000000000000000000090920491909117905560608201516002909101805473ffffffffffffffffffffffffffffffffffffffff9290921663010000000276ffffffffffffffffffffffffffffffffffffffff00000019909216919091179055505b505050505050565b60025481565b60015481565b600380548290811061029657fe5b906000526020600020900160005b915054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b608060405190810160409081526000808352602083018190529082018190526060820152905600a165627a7a7230582090db0e665345675812a6594d329532d6139d54f1c0705cfc700eb54d9ac50ab20029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1507962478056
+}
