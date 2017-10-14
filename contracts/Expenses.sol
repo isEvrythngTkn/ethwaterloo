@@ -1,7 +1,10 @@
 pragma solidity ^0.4.4;
 
+import 'zeppelin-solidity/contracts/token/ERC20Basic.sol';
+
 contract Expenses {
 
+  // CONTRACT PROPOSAL VARS
   bytes32 public name;
   bytes32 public description;
   uint public limitInCents;
@@ -9,24 +12,48 @@ contract Expenses {
   address[] private funders;
   bytes10 public state;
   
+  // POTENTIAL CONTRACT STATES
   bytes8 constant PROPOSED = "proposed";
   bytes6 constant ACTIVE = "active";
   bytes10 constant SETTLEMENT = "settlement";
   bytes6 constant CLOSED = "closed";
 
-  struct Transaction {
+  // SAI TOKEN CONTRACTS
+  address private saiKovan = 0x228BF3D5BE3ee4b80718b89b68069b023c32131E;
+  address private saiMainnet = 0x59aDCF176ED2f6788A41B8eA4c4904518e62B6A4;  
+
+  // HELPER TOTALS SO WE DON'T NEED TO COMPUTE LATER
+  uint public totalAmountInCents;
+  uint public totalAmountInSAI;
+
+  struct DualCurrencyRecord {
     uint amountInCents;
+    uint amountInSAI;
+  }
+
+  struct Transaction {
+    DualCurrencyRecord amountInCentsAndSAI;
     bytes32 transactionDescription;
     bytes3 currency;
     address spender;
   }
 
   // TRACK SOME EVENTS
+  event TransactionCreated (
+    uint indexed transactionID, 
+    uint amountInCents, 
+    uint amountInSAI, 
+    bytes32 transactionDescription,
+    bytes3 currency, address spender
+  );
 
-  // Private variables are not private, so there.
-  mapping (uint => Transaction) public transactions;
+  // Private variables are not private, so no point?
+  mapping (uint => Transaction) private transactions;
   mapping (address => bool) public proposalApprovals;
   mapping (address => bool) public settlementRequests;
+  mapping (address => DualCurrencyRecord) public spentPerSpender;
+
+  ///////////// MODIFIERS //////////////
 
   modifier isOneOf(address[] addresses) {
     bool proceed = false;
@@ -44,6 +71,8 @@ contract Expenses {
     _;
   }
 
+  ////////// FUNCTIONS ///////////
+
   function Expenses(bytes32 _name, bytes32 _description, uint _limitInCents, address[] _spenders, address[] _funders) {
     name = _name;
     description = _description;
@@ -53,15 +82,25 @@ contract Expenses {
     state = PROPOSED;
   } 
 
-  function createTransaction(uint transactionID, uint amountInCents, bytes32 transactionDescription, bytes3 currency, address spender) 
+  function createTransaction(uint transactionID, uint amountInCents, uint amountInSAI, bytes32 transactionDescription, bytes3 currency, address spender) 
     isOneOf(spenders) stateIs(ACTIVE) returns (bool)
     {
     Transaction memory transaction;
-    transaction.amountInCents = amountInCents;
+    transaction.amountInCentsAndSAI.amountInCents = amountInCents;
+    transaction.amountInCentsAndSAI.amountInSAI = amountInSAI;
     transaction.transactionDescription = transactionDescription;
     transaction.currency = currency;
     transaction.spender = spender;
     transactions[transactionID] = transaction;
+
+    totalAmountInCents += amountInCents;
+    totalAmountInSAI += amountInSAI;
+
+    spentPerSpender[spender].amountInCents += amountInCents;
+    spentPerSpender[spender].amountInSAI += amountInSAI;
+
+    TransactionCreated(transactionID, amountInCents, amountInSAI, transactionDescription, currency, spender);
+
     return true;
   }
 
@@ -100,8 +139,11 @@ contract Expenses {
   }
 
   function disburse() isOneOf(funders) stateIs(SETTLEMENT) {
-    // create a mapping of balance owing to each spender
-    // loop through transactions 
-    // 
+    ERC20Basic saiContract = ERC20Basic(saiKovan);
+    require(saiContract.balanceOf(this) >= totalAmountInSAI);
+    
+    for (uint i = 0; i < spenders.length; i++) {
+      saiContract.transfer(spenders[i], spentPerSpender[spenders[i]].amountInSAI);
+    }
   }
 }
