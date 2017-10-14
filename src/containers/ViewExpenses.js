@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import getWeb3 from '../utils/getWeb3'
 
-import ExpensesFactoryContract from '../../build/contracts/ExpensesFactory.json'
+import ExpensesContract from '../../build/contracts/Expenses.json'
 
 import '../css/oswald.css'
 import '../css/open-sans.css'
@@ -14,11 +14,14 @@ class ViewExpenses extends Component {
 
     this.state = {
       web3: null,
+      expenseContract: {},
       name: '',
       description: '',
-      funders: [],
-      spenders: [],
-      limit: 0
+      limit: 0,
+      spenders: '',
+      funders: '',
+      balance: 0,
+      transactions: []
     }
   }
 
@@ -28,43 +31,18 @@ class ViewExpenses extends Component {
       this.setState({
         web3: results.web3
       })
+      const self = this
+      const contract = require('truffle-contract')
+      const expensesContract = contract(ExpensesContract)
+      expensesContract.setProvider(this.state.web3.currentProvider)
+
+      expensesContract.at(this.props.match.params.expenseID).then(function(instance){
+        self.state.expenseContract = instance;
+        console.log('expense contract', self.state.expenseContract)
+      });
     })
     .catch(() => {
       console.log('Error finding web3.')
-    })
-  }
-
-  updateField(key, value) {
-    this.setState({[key]: value})
-  }
-
-  updateAddresses(key, value) {
-    let addresses = value.split(' ').join('')
-    addresses = addresses.split(',')
-    addresses = addresses.filter(address => address !== '')
-    this.setState({[key]: addresses})
-  }
-
-  submitProposal(e) {
-    e.preventDefault()
-    this.createExpenses()
-  }
-
-  createExpenses() {
-    const contract = require('truffle-contract')
-    const expensesFactoryContract = contract(ExpensesFactoryContract)
-    expensesFactoryContract.setProvider(this.state.web3.currentProvider)
-    var expensesFactoryInstance
-
-    this.state.web3.eth.getAccounts((error, accounts) => {
-      expensesFactoryContract.deployed().then((instance) => {
-        expensesFactoryInstance = instance
-        return expensesFactoryInstance.createContract(this.state.name, this.state.description, this.state.limit, this.state.spenders, this.state.funders, {from: accounts[0]})
-      }).then((result) => {
-        return expensesFactoryInstance.getContracts.call({from: accounts[0]})
-      }).then((result) => {
-        console.log(result);
-      })
     })
   }
 
@@ -82,7 +60,6 @@ class ViewExpenses extends Component {
                 <fieldset>
                   <legend>Information</legend>
                   <label htmlFor="state">State</label>
-                  <input type="text" placeholder="Proposal" name="state" readOnly/>
                   <label htmlFor="name">Name</label>
                   <input
                     type="text"
