@@ -147,4 +147,8 @@ contract Expenses {
       saiContract.transfer(spenders[i], spentPerSpender[spenders[i]].amountInSAI);
     }
   }
+
+  function getJSON() isOneOf(funders) isOneOf(spenders) {
+    return (state, name, description, limitInCents, spenders, funders, totalAmountInCents, totalAmountInSAI, transactions)
+  }
 }
