@@ -1,8 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import App from './App'
+import Expenses from './containers/Expenses'
 
 ReactDOM.render(
-  <App />,
+  <Expenses />,
   document.getElementById('root')
 );
