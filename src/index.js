@@ -1,8 +1,17 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Expenses from './containers/Expenses'
+import ListExpenses from './containers/ListExpenses'
+import NewExpenses from './containers/NewExpenses'
+
+import { BrowserRouter, Switch, Route } from 'react-router-dom'
+
 
 ReactDOM.render(
-  <Expenses />,
+  <BrowserRouter>
+    <Switch>
+      <Route exact path='/' component={ListExpenses}/>
+      <Route path='/new' component={NewExpenses}/>
+    </Switch>
+  </BrowserRouter>,
   document.getElementById('root')
 );

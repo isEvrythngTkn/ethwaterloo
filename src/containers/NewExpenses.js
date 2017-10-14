@@ -1,16 +1,19 @@
 import React, { Component } from 'react'
+import getWeb3 from '../utils/getWeb3'
+
+import ExpensesFactoryContract from '../../build/contracts/ExpensesFactory.json'
 
 import '../css/oswald.css'
 import '../css/open-sans.css'
 import '../css/pure-min.css'
 import '../App.css'
 
-class Expenses extends Component {
+class NewExpenses extends Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      isNew: true,
+      web3: null,
       name: '',
       description: '',
       funders: [],
@@ -19,13 +22,19 @@ class Expenses extends Component {
     }
   }
 
-  updateField(key, value) {
-    this.setState({[key]: value})
+  componentWillMount() {
+    getWeb3
+    .then(results => {
+      this.setState({
+        web3: results.web3
+      })
+    })
+    .catch(() => {
+      console.log('Error finding web3.')
+    })
   }
 
-  updateNumberField(key, value) {
-    if(isNaN(value))
-      return false
+  updateField(key, value) {
     this.setState({[key]: value})
   }
 
@@ -38,7 +47,25 @@ class Expenses extends Component {
 
   submitProposal(e) {
     e.preventDefault()
-    console.log(this.state)
+    this.createExpenses()
+  }
+
+  createExpenses() {
+    const contract = require('truffle-contract')
+    const expensesFactoryContract = contract(ExpensesFactoryContract)
+    expensesFactoryContract.setProvider(this.state.web3.currentProvider)
+    var expensesFactoryInstance
+
+    this.state.web3.eth.getAccounts((error, accounts) => {
+      expensesFactoryContract.deployed().then((instance) => {
+        expensesFactoryInstance = instance
+        return expensesFactoryInstance.createContract(this.state.name, this.state.description, this.state.limit, this.state.spenders, this.state.funders, {from: accounts[0]})
+      }).then((result) => {
+        return expensesFactoryInstance.getContracts.call({from: accounts[0]})
+      }).then((result) => {
+        console.log(result);
+      })
+    })
   }
 
   render() {
@@ -60,14 +87,12 @@ class Expenses extends Component {
                   <input
                     type="text"
                     name="name"
-                    readOnly={!this.state.isNew}
                     defaultValue={this.state.name}
                     onChange={e => this.updateField('name', e.target.value)}/>
                   <label htmlFor="description">Description</label>
                   <textarea
                     type="text"
                     name="description"
-                    readOnly={!this.state.isNew}
                     onChange={e => this.updateField('description', e.target.value)}
                     defaultValue={this.state.description}
                     style={{'resize': 'none'}}/>
@@ -76,21 +101,18 @@ class Expenses extends Component {
                     type="text"
                     name="limit"
                     onChange={e => this.updateField('limit', e.target.value)}
-                    readOnly={!this.state.isNew}
                     defaultValue={this.state.limit}/>
                   <label htmlFor="spenders">Spenders</label>
                   <input
                     type="text"
                     name="spenders"
                     onChange={e => this.updateAddresses('spenders', e.target.value)}
-                    readOnly={!this.state.isNew}
                     defaultValue={this.state.spenders}/>
                   <label htmlFor="funders">Funders</label>
                   <input
                     type="text"
                     name="funders"
                     onChange={e => this.updateAddresses('funders', e.target.value)}
-                    readOnly={!this.state.isNew}
                     defaultValue={this.state.funders}/>
                 </fieldset>
                 <button type="submit" className="pure-button pure-button-primary" onClick={e => this.submitProposal(e)}>Submit</button>
@@ -103,4 +125,4 @@ class Expenses extends Component {
   }
 }
 
-export default Expenses
+export default NewExpenses
