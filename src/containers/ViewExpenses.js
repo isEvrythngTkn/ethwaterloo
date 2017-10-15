@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import getWeb3 from '../utils/getWeb3'
 import { Link } from 'react-router-dom'
+import Header from '../components/Header'
 
 import ExpensesContract from '../../build/contracts/Expenses.json'
 
@@ -79,9 +80,7 @@ class ViewExpenses extends Component {
   render() {
     return (
       <div className="App">
-        <nav className="navbar pure-menu pure-menu-horizontal">
-          <Link to="/" className="pure-menu-heading pure-menu-link">Expense Report #{this.props.match.params.expenseID}</Link>
-        </nav>
+        <Header/>
 
         <main className="container">
           <div className="pure-g">

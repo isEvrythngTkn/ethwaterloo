@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import getWeb3 from '../utils/getWeb3'
 import { Link, withRouter } from 'react-router-dom';
+import Header from '../components/Header'
 
 import ExpensesContract from '../../build/contracts/Expenses.json'
 
@@ -56,9 +57,7 @@ class Transaction extends Component {
   render() {
     return (
       <div className="App">
-        <nav className="navbar pure-menu pure-menu-horizontal">
-          <Link to="/" className="pure-menu-heading pure-menu-link">Expense Report #001</Link>
-        </nav>
+        <Header/>
         <main className="container">
           <div className="pure-g">
             <div className="pure-u-1-1">
