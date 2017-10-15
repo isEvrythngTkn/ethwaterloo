@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import getWeb3 from '../utils/getWeb3'
-import { Link, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
+import Header from '../components/Header'
 
 import ExpensesContract from '../../build/contracts/Expenses.json'
 
@@ -56,21 +57,19 @@ class Transaction extends Component {
   render() {
     return (
       <div className="App">
-        <nav className="navbar pure-menu pure-menu-horizontal">
-          <Link to="/" className="pure-menu-heading pure-menu-link">Expense Report #001</Link>
-        </nav>
+        <Header/>
         <main className="container">
-          <div className="pure-g">
-            <div className="pure-u-1-1">
+          <div className="pure-g view-view">
+            <div className="pure-u-1-4">
               <form className="pure-form pure-form-stacked">
                 <fieldset>
-                  <legend>Transaction</legend>
+                  <legend>New Transaction</legend>
                   <label htmlFor="amount">Amount</label>
-                  <input type="text" name="amount" defaultValue={this.state.amount} onChange={e => this.setState({amount: e.target.value})}/>
+                  <input className="pure-input-1" type="text" name="amount" defaultValue={this.state.amount} onChange={e => this.setState({amount: e.target.value})}/>
                   <label htmlFor="description">Description</label>
-                  <input type="text" name="description" defaultValue={this.state.description} onChange={e => this.setState({description: e.target.value})}/>
+                  <input className="pure-input-1" type="text" name="description" defaultValue={this.state.description} onChange={e => this.setState({description: e.target.value})}/>
                 </fieldset>
-                <button type="submit" className="pure-button pure-button-primary" onClick={e => this.createTransaction(e)}>Submit</button>
+                <div style={{'textAlign': 'right'}}><button type="submit" className="pure-button pure-button-primary" onClick={e => this.createTransaction(e)}>Submit</button></div>
               </form>
             </div>
           </div>
