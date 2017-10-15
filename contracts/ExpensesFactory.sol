@@ -5,7 +5,7 @@ import "./Expenses.sol";
 contract ExpensesFactory {
   address[] public newContracts;
 
-  function createContract(bytes32 name, bytes32 description, uint limitInCents, address[] spenders, address[] funders) external {
+  function createContract(bytes32 name, bytes32 description, uint limitInCents, address spenders, address funders) external {
     address newContract = new Expenses(name, description, limitInCents, spenders, funders);
     newContracts.push(newContract);
   }

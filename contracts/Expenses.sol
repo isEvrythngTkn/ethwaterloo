@@ -8,8 +8,8 @@ contract Expenses {
   bytes32 public name;
   bytes32 public description;
   uint public limitInCents;
-  address[] public spenders;
-  address[] private funders;
+  address public spenders;
+  address public funders;
   bytes10 public state;
   uint public transactionsCount;
 
@@ -68,7 +68,7 @@ contract Expenses {
 
   ////////// FUNCTIONS ///////////
 
-  function Expenses(bytes32 _name, bytes32 _description, uint _limitInCents, address[] _spenders, address[] _funders) {
+  function Expenses(bytes32 _name, bytes32 _description, uint _limitInCents, address _spenders, address _funders) {
     name = _name;
     description = _description;
     limitInCents = _limitInCents;
@@ -97,51 +97,59 @@ contract Expenses {
     return true;
   }
 
-  function approve() isOneOf(funders) stateIs(PROPOSED) returns (bool) {
-    proposalApprovals[msg.sender] = true;
+  function approve() 
+  //isOneOf(funders) 
+    stateIs(PROPOSED) returns (bool) 
+    {
+    // proposalApprovals[msg.sender] = true;
 
-    bool allApproved = true;
+    // bool allApproved = true;
 
-    for (uint i = 0; i < funders.length; i++) {
-      if (!proposalApprovals[funders[i]]) {
-        allApproved = false;
-      }
-    }
-
-    return setState(allApproved, ACTIVE);
+    //for (uint i = 0; i < funders.length; i++) {
+    //if (!proposalApprovals[funders[i]]) {
+      //allApproved = false;
+    //}
+    //}
+    require(msg.sender == funders);
+    return setState(ACTIVE);
   }
 
-  function requestSettlement() isOneOf(spenders) stateIs(ACTIVE) returns (bool) {
-    settlementRequests[msg.sender] = true;
+  function requestSettlement() 
+  //isOneOf(spenders) 
+    stateIs(ACTIVE) returns (bool) 
+    {
+    //settlementRequests[msg.sender] = true;
 
-    bool allRequested = true;
+    //bool allRequested = true;
 
-    for (uint i = 0; i < spenders.length; i++) {
-      if (!settlementRequests[spenders[i]]) {
-        allRequested = false;
-      }
-    }
-    return setState(allRequested, SETTLEMENT);
+    //for (uint i = 0; i < spenders.length; i++) {
+    //  if (!settlementRequests[spenders[i]]) {
+    //    allRequested = false;
+    //  }
+    //}
+    require(msg.sender == spenders);
+    return setState(SETTLEMENT);
   }
 
-  function setState(bool condition, bytes10 newState) internal returns (bool) {
-    if (condition) {
-      state = newState;
-    }
+  function setState(bytes10 newState) internal returns (bool) {
+    state = newState;
     return true;
   }
 
-  function disburse() isOneOf(funders) stateIs(SETTLEMENT) {
+  function disburse() 
+  //isOneOf(funders) 
+  stateIs(SETTLEMENT) 
+    {
     ERC20Basic saiContract = ERC20Basic(saiKovan);
     require(saiContract.balanceOf(this) >= totalAmountInSAI);
 
-    for (uint i = 0; i < spenders.length; i++) {
-      saiContract.transfer(spenders[i], spentPerSpender[spenders[i]]);
-    }
+    //for (uint i = 0; i < spenders.length; i++) {
+    saiContract.transfer(spenders, totalAmountInSAI);
+    //}
   }
 
-  function getContractData() public constant returns (bytes32, bytes10, bytes32, uint, address[], address[]) {
-    return (name, state, description, limitInCents, spenders, funders);
+  function getContractData() public constant returns (bytes32, bytes10, bytes32) {
+    return (name, state, description);
   }
 
   function getTransactionData(uint _transactionID) constant returns (uint, bytes32) {
