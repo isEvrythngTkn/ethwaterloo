@@ -73,6 +73,13 @@ code {
   text-align: center;
 }
 
+.view-view {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .expense-link {
   margin: 20px;
 }

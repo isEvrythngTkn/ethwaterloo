@@ -124,11 +124,11 @@ class ViewExpenses extends Component {
         <Header/>
 
         <main className="container">
-          <div className="pure-g">
-            <div className="pure-u-1-1">
+          <div className="pure-g view-view">
+            <div className="pure-u-1-2">
               <form className="pure-form pure-form-stacked">
                 <fieldset>
-                  <legend>Information</legend>
+                  <legend>Expense Report: {this.props.match.params.expenseID}</legend>
                   Name: {this.state.name}<br/>
                   State: {this.state.state}<br/>
                   Description: {this.state.description}<br/>
