@@ -114,6 +114,26 @@
         {
           "name": "",
           "type": "bytes32"
+        },
+        {
+          "name": "",
+          "type": "bytes10"
+        },
+        {
+          "name": "",
+          "type": "bytes32"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "address[]"
+        },
+        {
+          "name": "",
+          "type": "address[]"
         }
       ],
       "payable": false,

@@ -140,12 +140,11 @@ contract Expenses {
     }
   }
 
-  //function getContractData() isOneOf(funders) isOneOf(spenders) constant
-  function getContractData() external constant returns (bytes32) {
-    return state;
-  }
-
   function getTransactionData(uint _transactionID) constant returns (uint, bytes32) {
     return (transactions[_transactionID].amountInCents, transactions[_transactionID].transactionDescription);
+  }
+
+  function getContractData() public constant returns (bytes32, bytes10, bytes32, uint, address[], address[]) {
+    return (name, state, description, limitInCents, spenders, funders);
   }
 }
