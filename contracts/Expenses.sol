@@ -23,9 +23,8 @@ contract Expenses {
   address private saiKovan = 0x228BF3D5BE3ee4b80718b89b68069b023c32131E;
   address private saiMainnet = 0x59aDCF176ED2f6788A41B8eA4c4904518e62B6A4;
 
-  // HELPER TOTALS SO WE DON'T NEED TO COMPUTE LATER
+  // HELPER TOTAL SO WE DON'T NEED TO COMPUTE LATER
   uint public totalAmountInCents;
-  uint public totalAmountInSAI;
 
   struct Transaction {
     uint amountInCents;
@@ -42,13 +41,24 @@ contract Expenses {
     address spender
   );
 
-  // Private variables are not private, so no point?
   mapping (uint => Transaction) private transactions;
-  mapping (address => bool) public proposalApprovals;
-  mapping (address => bool) public settlementRequests;
-  mapping (address => uint) public spentPerSpender;
 
   ///////////// MODIFIERS //////////////
+
+  modifier isFunded() {
+    bool funded = false;
+    if (state == ACTIVE) {
+      funded = true;
+    } else {
+      ERC20Basic saiContract = ERC20Basic(saiKovan);
+      if (saiContract.balanceOf(this) > 0) {
+        funded = true;
+        setState(ACTIVE);
+      }
+    }
+    require(funded);
+    _;
+  }
 
   modifier isOneOf(address[] addresses) {
     bool proceed = false;
@@ -76,10 +86,9 @@ contract Expenses {
     funders = _funders;
     state = PROPOSED;
     transactionsCount = 0;
-    // change for the sake of change
   }
 
-  function createTransaction(uint amountInCents, bytes32 transactionDescription) returns (bool) {
+  function createTransaction(uint amountInCents, bytes32 transactionDescription) isFunded returns (bool) {
     Transaction memory transaction;
     uint transactionID = transactionsCount;
     transactionsCount += 1;
@@ -90,43 +99,12 @@ contract Expenses {
 
     totalAmountInCents += amountInCents;
 
-    spentPerSpender[msg.sender] += amountInCents;
-
     TransactionCreated(transactionID, amountInCents, transactionDescription, msg.sender);
 
     return true;
   }
 
-  function approve() 
-  //isOneOf(funders) 
-    stateIs(PROPOSED) returns (bool) 
-    {
-    // proposalApprovals[msg.sender] = true;
-
-    // bool allApproved = true;
-
-    //for (uint i = 0; i < funders.length; i++) {
-    //if (!proposalApprovals[funders[i]]) {
-      //allApproved = false;
-    //}
-    //}
-    require(msg.sender == funders);
-    return setState(ACTIVE);
-  }
-
-  function requestSettlement() 
-  //isOneOf(spenders) 
-    stateIs(ACTIVE) returns (bool) 
-    {
-    //settlementRequests[msg.sender] = true;
-
-    //bool allRequested = true;
-
-    //for (uint i = 0; i < spenders.length; i++) {
-    //  if (!settlementRequests[spenders[i]]) {
-    //    allRequested = false;
-    //  }
-    //}
+  function requestSettlement() stateIs(ACTIVE) returns (bool) {
     require(msg.sender == spenders);
     return setState(SETTLEMENT);
   }
@@ -136,16 +114,12 @@ contract Expenses {
     return true;
   }
 
-  function disburse() 
-  //isOneOf(funders) 
-  stateIs(SETTLEMENT) 
-    {
+  function disburse() stateIs(SETTLEMENT) {
+    require(msg.sender == funders);
     ERC20Basic saiContract = ERC20Basic(saiKovan);
-    require(saiContract.balanceOf(this) >= totalAmountInSAI);
+    require(saiContract.balanceOf(this) >= totalAmountInCents);
 
-    //for (uint i = 0; i < spenders.length; i++) {
-    saiContract.transfer(spenders, totalAmountInSAI);
-    //}
+    saiContract.transfer(spenders, totalAmountInCents);
   }
 
   function getContractData() public constant returns (bytes32, bytes10, bytes32) {
