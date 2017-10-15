@@ -80,6 +80,7 @@ contract Expenses {
     spenders = _spenders;
     funders = _funders;
     state = PROPOSED;
+    // change for the sake of change
   } 
 
   function createTransaction(uint transactionID, uint amountInCents, uint amountInSAI, bytes32 transactionDescription, bytes3 currency, address spender) 
@@ -146,4 +147,11 @@ contract Expenses {
       saiContract.transfer(spenders[i], spentPerSpender[spenders[i]].amountInSAI);
     }
   }
+
+  //function getContractData() isOneOf(funders) isOneOf(spenders) constant 
+  function getContractData() external constant returns (bytes32) {
+    return state;
+  }
+
+  //function getTransactionData() isOneOf(funders) isOneOf(spenders) {}
 }

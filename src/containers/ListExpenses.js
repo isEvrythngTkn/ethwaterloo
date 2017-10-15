@@ -47,7 +47,7 @@ class ListExpenses extends Component {
     return (
       <div className="App">
         <nav className="navbar pure-menu pure-menu-horizontal">
-          <a href="#" className="pure-menu-heading pure-menu-link">Expense Report #001</a>
+          <a href="#" className="pure-menu-heading pure-menu-link">All Expense Reports</a>
         </nav>
 
         <main className="container">
@@ -55,7 +55,7 @@ class ListExpenses extends Component {
             <div className="pure-u-1-1">
               <ul>
                 {this.state.expenses.map((expense) => {
-                  return <li key={expense}><Link to={`/edit/${expense}`}>{expense}</Link></li>
+                  return <li key={expense}><Link to={`/view/${expense}`}>{expense}</Link></li>
                 })}
                 <li><Link to='/new'>New</Link></li>
               </ul>
