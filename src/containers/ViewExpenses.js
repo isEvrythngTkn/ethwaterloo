@@ -35,10 +35,19 @@ class ViewExpenses extends Component {
       const contract = require('truffle-contract')
       const expensesContract = contract(ExpensesContract)
       expensesContract.setProvider(this.state.web3.currentProvider)
+      var expenseContractInstance;
 
-      expensesContract.at(this.props.match.params.expenseID).then(function(instance){
-        self.state.expenseContract = instance;
-        console.log('expense contract', self.state.expenseContract)
+      this.state.web3.eth.getAccounts((error, accounts) => {
+        console.log(accounts);
+        expensesContract.at(this.props.match.params.expenseID).then(function(instance){
+          //self.setState({expenseContract: instance});
+          window.contractInstance = instance;
+          console.log('expense contract', instance)
+          return instance.getContractData();
+          //return instance.state.call(); 
+        }).then(function(data){
+          console.log('data', data);
+        });
       });
     })
     .catch(() => {

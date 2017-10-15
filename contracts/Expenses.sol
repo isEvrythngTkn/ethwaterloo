@@ -148,7 +148,10 @@ contract Expenses {
     }
   }
 
-  function getJSON() isOneOf(funders) isOneOf(spenders) {
-    return (state, name, description, limitInCents, spenders, funders, totalAmountInCents, totalAmountInSAI, transactions)
+  //function getContractData() isOneOf(funders) isOneOf(spenders) constant 
+  function getContractData() external constant returns (bytes32) {
+    return state;
   }
+
+  //function getTransactionData() isOneOf(funders) isOneOf(spenders) {}
 }
