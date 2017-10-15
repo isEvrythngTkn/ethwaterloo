@@ -9,7 +9,7 @@ import '../css/open-sans.css'
 import '../css/pure-min.css'
 import '../App.css'
 
-var weiToUSD = 30000000000000000;
+var weiToUSD = 3000000000000000;
 
 class ViewExpenses extends Component {
   constructor(props) {
@@ -24,6 +24,7 @@ class ViewExpenses extends Component {
       spender: '',
       funder: '',
       balance: 0,
+      totalSpent: 0,
       transactions: [],
       isFunder: false,
       isSpender: false
@@ -76,7 +77,10 @@ class ViewExpenses extends Component {
           self.setState({spender: data});
           return self.state.web3.eth.getBalance(expenseContractInstance.address);
         }).then(function(balance){
-          self.setState({balance: balance});
+          self.setState({balance: balance / weiToUSD});
+          return expenseContractInstance.totalAmountInCents();
+        }).then(function(data){
+          self.setState({totalSpent: data.toNumber() / 100});
         });
       });
 
@@ -117,6 +121,26 @@ class ViewExpenses extends Component {
     });
   }
 
+  disburseContract(e) {
+    e.preventDefault();
+    const self = this
+    const contract = require('truffle-contract')
+    const expensesContract = contract(ExpensesContract)
+    expensesContract.setProvider(this.state.web3.currentProvider)
+    var expenseContractInstance;
+
+    this.state.web3.eth.getAccounts((error, accounts) => {
+      expensesContract.at(self.props.match.params.expenseID).then(function(instance){
+        expenseContractInstance = instance;
+        var weiToSend = self.state.limit * weiToUSD;
+        console.log('oy');
+        return expenseContractInstance.disburseETH({from: accounts[0]});
+      }).then((result) => {
+        self.setState({state: 'closed'});
+      });
+    });
+  }
+
   render() {
     return (
       <div className="App">
@@ -133,12 +157,13 @@ class ViewExpenses extends Component {
                   Name: {this.state.name}<br/>
                   State: {this.state.state}<br/>
                   Description: {this.state.description}<br/>
-                  Limit: {this.state.limit}<br/>
+                  Limit: ${this.state.limit}<br/>
                   Spender: {this.state.spender}<br/> 
                   Funders: {this.state.funder}<br/>
-                  Balance: {this.state.balance}<br/>
+                  Balance: ${this.state.balance}<br/>
+                  Total Spent: ${this.state.totalSpent}<br/>
                   { this.state.isFunder && this.state.state == 'proposed' ? <button className="fund-contract"  onClick={e => this.fundContract(e)}>Fund Contract</button> : ''}
-                  { this.state.isFunder ? <button className="disburse-contract">Disburse Contract</button> : ''}
+                  { this.state.isFunder ? <button className="disburse-contract"  onClick={e => this.disburseContract(e)}>Disburse Contract</button> : ''}
                 </fieldset>
                 <ul>
                   {this.state.transactions.map((transaction, index) => {
