@@ -40,6 +40,7 @@ code {
   position: fixed;
   padding: 5px;
   background: #0c1a2b;
+  text-align: center;
   font-family: 'Oswald', 'Arial Narrow', sans-serif;
 }
 
@@ -65,4 +66,13 @@ code {
 .navbar .uport-logo {
   height: 16px;
   margin-right: 10px;
+}
+
+.list-view {
+  padding: 20px;
+  text-align: center;
+}
+
+.expense-link {
+  margin: 20px;
 }
