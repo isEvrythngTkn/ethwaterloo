@@ -60,7 +60,7 @@ class Transaction extends Component {
         <Header/>
         <main className="container">
           <div className="pure-g view-view">
-            <div className="pure-u-1-4">
+            <div className="pure-u-1-3">
               <form className="pure-form pure-form-stacked">
                 <fieldset>
                   <legend>New Transaction</legend>
