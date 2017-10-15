@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import getWeb3 from '../utils/getWeb3'
 import { Link } from 'react-router-dom'
+import Header from '../components/Header'
 
 import ExpensesContract from '../../build/contracts/Expenses.json'
 
@@ -46,7 +47,7 @@ class ViewExpenses extends Component {
           expenseContractInstance = instance;
           console.log('expense contract', instance)
           return expenseContractInstance.getContractData();
-          //return instance.state.call(); 
+          //return instance.state.call();
         }).then(function(data){
           console.log(data);
           self.setState({
@@ -87,9 +88,7 @@ class ViewExpenses extends Component {
   render() {
     return (
       <div className="App">
-        <nav className="navbar pure-menu pure-menu-horizontal">
-          <a href="#" className="pure-menu-heading pure-menu-link">Expense Report #{this.props.match.params.expenseID}</a>
-        </nav>
+        <Header/>
 
         <main className="container">
           <div className="pure-g">
@@ -101,7 +100,7 @@ class ViewExpenses extends Component {
                   State: {this.state.state}<br/>
                   Description: {this.state.description}<br/>
                   Limit: {this.state.limit}<br/>
-                  Spender: {this.state.spender}<br/> 
+                  Spender: {this.state.spender}<br/>
                   Funders: {this.state.funder}<br/>
                   <button className="fund-contract">Fund Contract</button>
                 </fieldset>

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { withRouter, Link } from 'react-router-dom'
 import getWeb3 from '../utils/getWeb3'
+import Header from '../components/Header'
 
 import ExpensesFactoryContract from '../../build/contracts/ExpensesFactory.json'
 
@@ -88,9 +89,7 @@ class NewExpenses extends Component {
 
     return (
       <div className="App">
-        <nav className="navbar pure-menu pure-menu-horizontal">
-          <Link to="/" className="pure-menu-heading pure-menu-link">Expense Report #001</Link>
-        </nav>
+        <Header/>
 
         <main className="container">
           <div className="pure-g">

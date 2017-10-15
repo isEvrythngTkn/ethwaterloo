@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import getWeb3 from '../utils/getWeb3'
 import { Link } from 'react-router-dom'
+import Header from '../components/Header'
 
 import ExpensesFactoryContract from '../../build/contracts/ExpensesFactory.json'
 
@@ -46,19 +47,15 @@ class ListExpenses extends Component {
   render() {
     return (
       <div className="App">
-        <nav className="navbar pure-menu pure-menu-horizontal">
-          <a href="#" className="pure-menu-heading pure-menu-link">All Expense Reports</a>
-        </nav>
+        <Header/>
 
         <main className="container">
-          <div className="pure-g">
+          <div className="list-view pure-g">
             <div className="pure-u-1-1">
-              <ul>
-                {this.state.expenses.map((expense) => {
-                  return <li key={expense}><Link to={`/view/${expense}`}>{expense}</Link></li>
+                {this.state.expenses.map((expense, index) => {
+                  return <div className="pure-u-1-1 expense-link" key={index}><Link to={`/view/${expense}`}><button className="pure-button pure-button-primary">{expense}</button></Link></div>
                 })}
-                <li><Link to='/new'>New</Link></li>
-              </ul>
+                <div className="pure-u-1-1 expense-link"><Link to="/new"><button className="pure-button pure-button-primary">New Expense Report</button></Link></div>
             </div>
           </div>
         </main>
