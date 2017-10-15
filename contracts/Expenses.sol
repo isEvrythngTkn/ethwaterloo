@@ -11,7 +11,8 @@ contract Expenses {
   address[] public spenders;
   address[] private funders;
   bytes10 public state;
-  
+  uint public transactionsCount;
+
   // POTENTIAL CONTRACT STATES
   bytes8 constant PROPOSED = "proposed";
   bytes6 constant ACTIVE = "active";
@@ -20,19 +21,14 @@ contract Expenses {
 
   // SAI TOKEN CONTRACTS
   address private saiKovan = 0x228BF3D5BE3ee4b80718b89b68069b023c32131E;
-  address private saiMainnet = 0x59aDCF176ED2f6788A41B8eA4c4904518e62B6A4;  
+  address private saiMainnet = 0x59aDCF176ED2f6788A41B8eA4c4904518e62B6A4;
 
   // HELPER TOTALS SO WE DON'T NEED TO COMPUTE LATER
   uint public totalAmountInCents;
   uint public totalAmountInSAI;
 
-  struct DualCurrencyRecord {
-    uint amountInCents;
-    uint amountInSAI;
-  }
-
   struct Transaction {
-    DualCurrencyRecord amountInCentsAndSAI;
+    uint amountInCents;
     bytes32 transactionDescription;
     bytes3 currency;
     address spender;
@@ -40,18 +36,17 @@ contract Expenses {
 
   // TRACK SOME EVENTS
   event TransactionCreated (
-    uint indexed transactionID, 
-    uint amountInCents, 
-    uint amountInSAI, 
+    uint indexed transactionID,
+    uint amountInCents,
     bytes32 transactionDescription,
-    bytes3 currency, address spender
+    address spender
   );
 
   // Private variables are not private, so no point?
   mapping (uint => Transaction) private transactions;
   mapping (address => bool) public proposalApprovals;
   mapping (address => bool) public settlementRequests;
-  mapping (address => DualCurrencyRecord) public spentPerSpender;
+  mapping (address => uint) public spentPerSpender;
 
   ///////////// MODIFIERS //////////////
 
@@ -80,34 +75,31 @@ contract Expenses {
     spenders = _spenders;
     funders = _funders;
     state = PROPOSED;
+    transactionsCount = 0;
     // change for the sake of change
-  } 
+  }
 
-  function createTransaction(uint transactionID, uint amountInCents, uint amountInSAI, bytes32 transactionDescription, bytes3 currency, address spender) 
-    isOneOf(spenders) stateIs(ACTIVE) returns (bool)
-    {
+  function createTransaction(uint amountInCents, bytes32 transactionDescription) returns (bool) {
     Transaction memory transaction;
-    transaction.amountInCentsAndSAI.amountInCents = amountInCents;
-    transaction.amountInCentsAndSAI.amountInSAI = amountInSAI;
+    uint transactionID = transactionsCount;
+    transactionsCount += 1;
+    transaction.amountInCents = amountInCents;
     transaction.transactionDescription = transactionDescription;
-    transaction.currency = currency;
-    transaction.spender = spender;
+    transaction.spender = msg.sender;
     transactions[transactionID] = transaction;
 
     totalAmountInCents += amountInCents;
-    totalAmountInSAI += amountInSAI;
 
-    spentPerSpender[spender].amountInCents += amountInCents;
-    spentPerSpender[spender].amountInSAI += amountInSAI;
+    spentPerSpender[msg.sender] += amountInCents;
 
-    TransactionCreated(transactionID, amountInCents, amountInSAI, transactionDescription, currency, spender);
+    TransactionCreated(transactionID, amountInCents, transactionDescription, msg.sender);
 
     return true;
   }
 
   function approve() isOneOf(funders) stateIs(PROPOSED) returns (bool) {
     proposalApprovals[msg.sender] = true;
-    
+
     bool allApproved = true;
 
     for (uint i = 0; i < funders.length; i++) {
@@ -115,7 +107,7 @@ contract Expenses {
         allApproved = false;
       }
     }
-    
+
     return setState(allApproved, ACTIVE);
   }
 
@@ -142,16 +134,17 @@ contract Expenses {
   function disburse() isOneOf(funders) stateIs(SETTLEMENT) {
     ERC20Basic saiContract = ERC20Basic(saiKovan);
     require(saiContract.balanceOf(this) >= totalAmountInSAI);
-    
+
     for (uint i = 0; i < spenders.length; i++) {
-      saiContract.transfer(spenders[i], spentPerSpender[spenders[i]].amountInSAI);
+      saiContract.transfer(spenders[i], spentPerSpender[spenders[i]]);
     }
   }
 
-  //function getContractData() isOneOf(funders) isOneOf(spenders) constant 
   function getContractData() public constant returns (bytes32, bytes10, bytes32, uint, address[], address[]) {
     return (name, state, description, limitInCents, spenders, funders);
   }
-  // change
-  //function getTransactionData() isOneOf(funders) isOneOf(spenders) {}
+
+  function getTransactionData(uint _transactionID) constant returns (uint, bytes32) {
+    return (transactions[_transactionID].amountInCents, transactions[_transactionID].transactionDescription);
+  }
 }

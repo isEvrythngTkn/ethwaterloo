@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import getWeb3 from '../utils/getWeb3'
+import { Link } from 'react-router-dom'
 
 import ExpensesContract from '../../build/contracts/Expenses.json'
 
@@ -44,7 +45,7 @@ class ViewExpenses extends Component {
           window.contractInstance = instance;
           console.log('expense contract', instance)
           return instance.getContractData();
-          //return instance.state.call(); 
+          //return instance.state.call();
         }).then(function(data){
           console.log(data[3]);
           self.setState({
@@ -83,6 +84,7 @@ class ViewExpenses extends Component {
                   Spenders: {this.state.spenders}<br/>
                   Funders: {this.state.funders}<br/>
                 </fieldset>
+                <Link to={`/view/${this.props.match.params.expenseID}/new-transaction`}><button className="pure-button pure-button-primary">New Transaction</button></Link>
               </form>
             </div>
           </div>
