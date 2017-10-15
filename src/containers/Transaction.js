@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import getWeb3 from '../utils/getWeb3'
-import { Link, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import Header from '../components/Header'
 
 import ExpensesContract from '../../build/contracts/Expenses.json'
