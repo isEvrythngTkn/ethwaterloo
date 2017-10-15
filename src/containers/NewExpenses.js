@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import { withRouter, Link } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import getWeb3 from '../utils/getWeb3'
+import Header from '../components/Header'
 
 import ExpensesFactoryContract from '../../build/contracts/ExpensesFactory.json'
 
@@ -15,6 +16,8 @@ class NewExpenses extends Component {
 
     this.state = {
       web3: null,
+      contractInstance: {},
+      newAddress: '',
       name: '',
       description: '',
       funders: [],
@@ -53,21 +56,20 @@ class NewExpenses extends Component {
   }
 
   createExpenses() {
-
     const self = this
     const contract = require('truffle-contract')
     const expensesFactoryContract = contract(ExpensesFactoryContract)
     expensesFactoryContract.setProvider(this.state.web3.currentProvider)
-    var expensesFactoryInstance
 
     this.state.web3.eth.getAccounts((error, accounts) => {
       expensesFactoryContract.deployed().then((instance) => {
-        expensesFactoryInstance = instance
-        return expensesFactoryInstance.createContract(this.state.name, this.state.description, this.state.limit, this.state.spenders, this.state.funders, {from: accounts[0]})
+        self.setState({contractInstance: instance})
+        return instance.createContract.call(this.state.name, this.state.description, this.state.limit, this.state.spenders, this.state.funders, {from: accounts[0]})
       }).then((result) => {
-        return expensesFactoryInstance.getContracts.call({from: accounts[0]})
+        self.setState({newAddress: result})
+        return self.state.contractInstance.createContract(this.state.name, this.state.description, this.state.limit, this.state.spenders, this.state.funders, {from: accounts[0]})
       }).then((result) => {
-        self.props.history.push('/')
+        self.props.history.push(`/view/${self.state.newAddress}`)
       })
     })
   }
@@ -88,28 +90,28 @@ class NewExpenses extends Component {
 
     return (
       <div className="App">
-        <nav className="navbar pure-menu pure-menu-horizontal">
-          <Link to="/" className="pure-menu-heading pure-menu-link">Expense Report #001</Link>
-        </nav>
+        <Header/>
 
         <main className="container">
-          <div className="pure-g">
-            <div className="pure-u-1-1">
+          <div className="pure-g view-view">
+            <div className="pure-u-1-2">
               <form className="pure-form pure-form-stacked">
                 <fieldset>
-                  <legend>Information</legend>
+                  <legend>New Expense Report</legend>
                   <label htmlFor="state">State</label>
-                  <input type="text" placeholder="Proposal" name="state" readOnly/>
+                  <input className="pure-input-1" type="text" placeholder="Proposal" name="state" readOnly/>
                   <label htmlFor="name">Name</label>
                   <input
                     type="text"
                     name="name"
+                    className="pure-input-1"
                     defaultValue={this.state.name}
                     onChange={e => this.updateField('name', e.target.value)}/>
                   <label htmlFor="description">Description</label>
                   <textarea
                     type="text"
                     name="description"
+                    className="pure-input-1"
                     onChange={e => this.updateField('description', e.target.value)}
                     defaultValue={this.state.description}
                     style={{'resize': 'none'}}/>
@@ -117,22 +119,25 @@ class NewExpenses extends Component {
                   <input
                     type="text"
                     name="limit"
+                    className="pure-input-1"
                     onChange={e => this.updateField('limit', e.target.value)}
                     defaultValue={this.state.limit}/>
                   <label htmlFor="spenders">Spenders</label>
                   <input
                     type="text"
                     name="spenders"
+                    className="pure-input-1"
                     onChange={e => this.updateAddresses('spenders', e.target.value)}
                     defaultValue={this.state.spenders}/>
                   <label htmlFor="funders">Funders</label>
                   <input
                     type="text"
                     name="funders"
+                    className="pure-input-1"
                     onChange={e => this.updateAddresses('funders', e.target.value)}
                     defaultValue={this.state.funders}/>
                 </fieldset>
-                <button type="submit" className="pure-button pure-button-primary" onClick={e => this.submitProposal(e)} disabled={!isEnabled}>Submit</button>
+                <div style={{'textAlign': 'right'}}><button type="submit" className="pure-button pure-button-primary" onClick={e => this.submitProposal(e)} disabled={!isEnabled}>Submit</button></div>
               </form>
             </div>
           </div>

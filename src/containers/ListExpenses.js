@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import getWeb3 from '../utils/getWeb3'
 import { Link } from 'react-router-dom'
+import Header from '../components/Header'
 
 import ExpensesFactoryContract from '../../build/contracts/ExpensesFactory.json'
 
@@ -15,7 +16,9 @@ class ListExpenses extends Component {
 
     this.state = {
       web3: null,
-      expenses: []
+      contractInstance: {},
+      expenses: [],
+      expensesNames: []
     }
   }
 
@@ -31,9 +34,16 @@ class ListExpenses extends Component {
       expensesFactoryContract.setProvider(this.state.web3.currentProvider)
       this.state.web3.eth.getAccounts((error, accounts) => {
         expensesFactoryContract.deployed().then((instance) => {
+          self.setState({contractInstance: instance})
           return instance.getContracts.call({from: accounts[0]})
         }).then((result) => {
           self.setState({expenses: result})
+          return self.state.contractInstance.getContractNames.call({from: accounts[0]})
+        }).then((result) => {
+          var names = result.map((name) => {
+            return self.state.web3.utils.hexToString(name)
+          })
+          self.setState({expensesNames: names})
         })
       })
     })
@@ -46,20 +56,14 @@ class ListExpenses extends Component {
   render() {
     return (
       <div className="App">
-        <nav className="navbar pure-menu pure-menu-horizontal">
-          <a href="#" className="pure-menu-heading pure-menu-link">All Expense Reports</a>
-        </nav>
+        <Header/>
 
         <main className="container">
-          <div className="pure-g">
-            <div className="pure-u-1-1">
-              <ul>
-                {this.state.expenses.map((expense) => {
-                  return <li key={expense}><Link to={`/view/${expense}`}>{expense}</Link></li>
-                })}
-                <li><Link to='/new'>New</Link></li>
-              </ul>
-            </div>
+          <div className="list-view pure-g">
+            {this.state.expenses.map((expense, index) => {
+              return <div className="pure-u-1-1 expense-link" key={index}><Link to={`/view/${expense}`}><button className="pure-button pure-button-primary">{this.state.expensesNames[index]}</button></Link></div>
+            })}
+            <div className="pure-u-1-1 expense-link"><Link to="/new"><button className="pure-button pure-button-primary">New Expense Report</button></Link></div>
           </div>
         </main>
       </div>
