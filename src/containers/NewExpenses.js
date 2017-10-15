@@ -93,23 +93,25 @@ class NewExpenses extends Component {
         <Header/>
 
         <main className="container">
-          <div className="pure-g">
-            <div className="pure-u-1-1">
+          <div className="pure-g view-view">
+            <div className="pure-u-1-2">
               <form className="pure-form pure-form-stacked">
                 <fieldset>
-                  <legend>Information</legend>
+                  <legend>New Expense Report</legend>
                   <label htmlFor="state">State</label>
-                  <input type="text" placeholder="Proposal" name="state" readOnly/>
+                  <input className="pure-input-1" type="text" placeholder="Proposal" name="state" readOnly/>
                   <label htmlFor="name">Name</label>
                   <input
                     type="text"
                     name="name"
+                    className="pure-input-1"
                     defaultValue={this.state.name}
                     onChange={e => this.updateField('name', e.target.value)}/>
                   <label htmlFor="description">Description</label>
                   <textarea
                     type="text"
                     name="description"
+                    className="pure-input-1"
                     onChange={e => this.updateField('description', e.target.value)}
                     defaultValue={this.state.description}
                     style={{'resize': 'none'}}/>
@@ -117,22 +119,25 @@ class NewExpenses extends Component {
                   <input
                     type="text"
                     name="limit"
+                    className="pure-input-1"
                     onChange={e => this.updateField('limit', e.target.value)}
                     defaultValue={this.state.limit}/>
                   <label htmlFor="spenders">Spenders</label>
                   <input
                     type="text"
                     name="spenders"
+                    className="pure-input-1"
                     onChange={e => this.updateAddresses('spenders', e.target.value)}
                     defaultValue={this.state.spenders}/>
                   <label htmlFor="funders">Funders</label>
                   <input
                     type="text"
                     name="funders"
+                    className="pure-input-1"
                     onChange={e => this.updateAddresses('funders', e.target.value)}
                     defaultValue={this.state.funders}/>
                 </fieldset>
-                <button type="submit" className="pure-button pure-button-primary" onClick={e => this.submitProposal(e)} disabled={!isEnabled}>Submit</button>
+                <div style={{'textAlign': 'right'}}><button type="submit" className="pure-button pure-button-primary" onClick={e => this.submitProposal(e)} disabled={!isEnabled}>Submit</button></div>
               </form>
             </div>
           </div>

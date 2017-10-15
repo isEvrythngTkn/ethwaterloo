@@ -59,17 +59,17 @@ class Transaction extends Component {
       <div className="App">
         <Header/>
         <main className="container">
-          <div className="pure-g">
-            <div className="pure-u-1-1">
+          <div className="pure-g view-view">
+            <div className="pure-u-1-4">
               <form className="pure-form pure-form-stacked">
                 <fieldset>
-                  <legend>Transaction</legend>
+                  <legend>New Transaction</legend>
                   <label htmlFor="amount">Amount</label>
-                  <input type="text" name="amount" defaultValue={this.state.amount} onChange={e => this.setState({amount: e.target.value})}/>
+                  <input className="pure-input-1" type="text" name="amount" defaultValue={this.state.amount} onChange={e => this.setState({amount: e.target.value})}/>
                   <label htmlFor="description">Description</label>
-                  <input type="text" name="description" defaultValue={this.state.description} onChange={e => this.setState({description: e.target.value})}/>
+                  <input className="pure-input-1" type="text" name="description" defaultValue={this.state.description} onChange={e => this.setState({description: e.target.value})}/>
                 </fieldset>
-                <button type="submit" className="pure-button pure-button-primary" onClick={e => this.createTransaction(e)}>Submit</button>
+                <div style={{'textAlign': 'right'}}><button type="submit" className="pure-button pure-button-primary" onClick={e => this.createTransaction(e)}>Submit</button></div>
               </form>
             </div>
           </div>
