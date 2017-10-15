@@ -44,7 +44,7 @@ class ViewExpenses extends Component {
           window.contractInstance = instance;
           console.log('expense contract', instance)
           return instance.getContractData();
-          //return instance.state.call(); 
+          //return instance.state.call();
         }).then(function(data){
           console.log('data', data);
         });
@@ -101,6 +101,7 @@ class ViewExpenses extends Component {
                     onChange={e => this.updateAddresses('funders', e.target.value)}
                     defaultValue={this.state.funders}/>
                 </fieldset>
+                <Link to={`/view/${this.props.match.params.expenseID}/new-transaction`}><button className="pure-button pure-button-primary">New Transaction</button></Link>
                 <button type="submit" className="pure-button pure-button-primary" onClick={e => this.submitProposal(e)}>Submit</button>
               </form>
             </div>
