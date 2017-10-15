@@ -155,12 +155,12 @@ class ViewExpenses extends Component {
                   State: {this.state.state}<br/>
                   Description: {this.state.description}<br/>
                   Limit: ${this.state.limit}<br/>
-                  Spender: {this.state.spender}<br/> 
+                  Spender: {this.state.spender}<br/>
                   Funders: {this.state.funder}<br/>
                   Balance: ${this.state.balance}<br/>
                   Total Spent: ${this.state.totalSpent}<br/>
-                  { this.state.isFunder && this.state.state == 'proposed' ? <button className="fund-contract"  onClick={e => this.fundContract(e)}>Fund Contract</button> : ''}
-                  { this.state.isFunder && this.state.state == 'active' ? <button className="disburse-contract"  onClick={e => this.disburseContract(e)}>Disburse Contract</button> : ''}
+                  { this.state.isFunder && this.state.state == 'proposed' ? <button className="fund-contract pure-button pure-button-primary"  onClick={e => this.fundContract(e)}>Fund Contract</button> : ''}
+                  { this.state.isFunder && this.state.state == 'active' ? <button className="disburse-contract pure-button pure-button-primary"  onClick={e => this.disburseContract(e)}>Disburse Contract</button> : ''}
                 </fieldset>
                 <ul>
                   {this.state.transactions.map((transaction, index) => {
