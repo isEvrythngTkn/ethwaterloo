@@ -9,6 +9,8 @@ import '../css/open-sans.css'
 import '../css/pure-min.css'
 import '../App.css'
 
+var weiToUSD = 30000000000000000;
+
 class ViewExpenses extends Component {
   constructor(props) {
     super(props)
@@ -22,7 +24,9 @@ class ViewExpenses extends Component {
       spender: '',
       funder: '',
       balance: 0,
-      transactions: []
+      transactions: [],
+      isFunder: false,
+      isSpender: false
     }
   }
 
@@ -60,13 +64,22 @@ class ViewExpenses extends Component {
           self.setState({limit: data.toNumber()});
           return expenseContractInstance.funders();
         }).then(function(data){
+          if (self.state.web3.utils.toChecksumAddress(data) == self.state.web3.utils.toChecksumAddress(accounts[0])) {
+            self.setState({isFunder: true});
+          }
           self.setState({funder: data});
           return expenseContractInstance.spenders();
         }).then(function(data) {
+          if (self.state.web3.utils.toChecksumAddress(data) == self.state.web3.utils.toChecksumAddress(accounts[0])) {
+            self.setState({isSpender: true});
+          }
           self.setState({spender: data});
-          return expenseContractInstance.limitInCents();
+          return self.state.web3.eth.getBalance(expenseContractInstance.address);
+        }).then(function(balance){
+          self.setState({balance: balance});
         });
       });
+
       expensesContract.at(this.props.match.params.expenseID).then(function(instance){
         self.setState({expenseContract: instance})
         return instance.transactionsCount();
@@ -82,6 +95,26 @@ class ViewExpenses extends Component {
     .catch(() => {
       console.log('Error finding web3.')
     })
+  }
+
+  fundContract(e) {
+    e.preventDefault();
+    const self = this
+    const contract = require('truffle-contract')
+    const expensesContract = contract(ExpensesContract)
+    expensesContract.setProvider(this.state.web3.currentProvider)
+    var expenseContractInstance;
+
+    this.state.web3.eth.getAccounts((error, accounts) => {
+      console.log(accounts);
+      expensesContract.at(self.props.match.params.expenseID).then(function(instance){
+        expenseContractInstance = instance;
+        var weiToSend = self.state.limit * weiToUSD
+        return expenseContractInstance.fund({from: accounts[0], value: weiToSend});
+      }).then((result) => {
+        self.setState({state: 'active'});
+      });
+    });
   }
 
   render() {
@@ -103,7 +136,9 @@ class ViewExpenses extends Component {
                   Limit: {this.state.limit}<br/>
                   Spender: {this.state.spender}<br/> 
                   Funders: {this.state.funder}<br/>
-                  <button className="fund-contract">Fund Contract</button>
+                  Balance: {this.state.balance}<br/>
+                  { this.state.isFunder && this.state.state == 'proposed' ? <button className="fund-contract"  onClick={e => this.fundContract(e)}>Fund Contract</button> : ''}
+                  { this.state.isFunder ? <button className="disburse-contract">Disburse Contract</button> : ''}
                 </fieldset>
                 <ul>
                   {this.state.transactions.map((transaction, index) => {

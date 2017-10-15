@@ -26,6 +26,9 @@ contract Expenses {
   // HELPER TOTAL SO WE DON'T NEED TO COMPUTE LATER
   uint public totalAmountInCents;
 
+  // EXCHANGE RATE SHOULD BE DYNAMIC, OR USE SAI COIN
+  uint public weiToUSD = 30000000000000000;
+
   struct Transaction {
     uint amountInCents;
     bytes32 transactionDescription;
@@ -114,16 +117,27 @@ contract Expenses {
     return true;
   }
 
-  function disburse() stateIs(SETTLEMENT) {
+  function disburseSAI() stateIs(SETTLEMENT) returns (bool) {
     require(msg.sender == funders);
     ERC20Basic saiContract = ERC20Basic(saiKovan);
     require(saiContract.balanceOf(this) >= totalAmountInCents);
 
     saiContract.transfer(spenders, totalAmountInCents);
+    return true;
+  }
+
+  function fund() public payable returns (bool) {
+    require(msg.sender == funders);
+    uint amount = msg.value;
+    uint amountRequested = limitInCents * weiToUSD;
+    require(amount >= amountRequested);
+    setState(ACTIVE);
+    return true;
   }
 
   function getContractData() public constant returns (bytes32, bytes10, bytes32) {
     return (name, state, description);
+
   }
 
   function getTransactionData(uint _transactionID) constant returns (uint, bytes32) {
