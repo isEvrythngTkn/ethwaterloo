@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { withRouter, Link } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import getWeb3 from '../utils/getWeb3'
 import Header from '../components/Header'
 
@@ -16,6 +16,8 @@ class NewExpenses extends Component {
 
     this.state = {
       web3: null,
+      contractInstance: {},
+      newAddress: '',
       name: '',
       description: '',
       funders: [],
@@ -54,21 +56,20 @@ class NewExpenses extends Component {
   }
 
   createExpenses() {
-
     const self = this
     const contract = require('truffle-contract')
     const expensesFactoryContract = contract(ExpensesFactoryContract)
     expensesFactoryContract.setProvider(this.state.web3.currentProvider)
-    var expensesFactoryInstance
 
     this.state.web3.eth.getAccounts((error, accounts) => {
       expensesFactoryContract.deployed().then((instance) => {
-        expensesFactoryInstance = instance
-        return expensesFactoryInstance.createContract(this.state.name, this.state.description, this.state.limit, this.state.spenders, this.state.funders, {from: accounts[0]})
+        self.setState({contractInstance: instance})
+        return instance.createContract.call(this.state.name, this.state.description, this.state.limit, this.state.spenders, this.state.funders, {from: accounts[0]})
       }).then((result) => {
-        return expensesFactoryInstance.getContracts.call({from: accounts[0]})
+        self.setState({newAddress: result})
+        return self.state.contractInstance.createContract(this.state.name, this.state.description, this.state.limit, this.state.spenders, this.state.funders, {from: accounts[0]})
       }).then((result) => {
-        self.props.history.push('/')
+        self.props.history.push(`/view/${self.state.newAddress}`)
       })
     })
   }

@@ -16,7 +16,9 @@ class ListExpenses extends Component {
 
     this.state = {
       web3: null,
-      expenses: []
+      contractInstance: {},
+      expenses: [],
+      expensesNames: []
     }
   }
 
@@ -32,9 +34,16 @@ class ListExpenses extends Component {
       expensesFactoryContract.setProvider(this.state.web3.currentProvider)
       this.state.web3.eth.getAccounts((error, accounts) => {
         expensesFactoryContract.deployed().then((instance) => {
+          self.setState({contractInstance: instance})
           return instance.getContracts.call({from: accounts[0]})
         }).then((result) => {
           self.setState({expenses: result})
+          return self.state.contractInstance.getContractNames.call({from: accounts[0]})
+        }).then((result) => {
+          var names = result.map((name) => {
+            return self.state.web3.utils.hexToString(name)
+          })
+          self.setState({expensesNames: names})
         })
       })
     })
@@ -51,12 +60,10 @@ class ListExpenses extends Component {
 
         <main className="container">
           <div className="list-view pure-g">
-            <div className="pure-u-1-1">
-                {this.state.expenses.map((expense, index) => {
-                  return <div className="pure-u-1-1 expense-link" key={index}><Link to={`/view/${expense}`}><button className="pure-button pure-button-primary">{expense}</button></Link></div>
-                })}
-                <div className="pure-u-1-1 expense-link"><Link to="/new"><button className="pure-button pure-button-primary">New Expense Report</button></Link></div>
-            </div>
+            {this.state.expenses.map((expense, index) => {
+              return <div className="pure-u-1-1 expense-link" key={index}><Link to={`/view/${expense}`}><button className="pure-button pure-button-primary">{this.state.expensesNames[index]}</button></Link></div>
+            })}
+            <div className="pure-u-1-1 expense-link"><Link to="/new"><button className="pure-button pure-button-primary">New Expense Report</button></Link></div>
           </div>
         </main>
       </div>
