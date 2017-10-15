@@ -112,20 +112,15 @@ contract Expenses {
     return true;
   }
 
-  function disburseETH() returns (bool) {
-    require(msg.sender == funders);
-    uint amountToReimburse = totalAmountInCents * weiToUSDCents;
-    uint remainder = this.balance - amountToReimburse;
-    //require(this.balance >= amountToReimburse);
+  function disburseETH() {
+    //require(msg.sender == funders);
+    uint amountToReimburse = totalAmountInCents * weiToUSDCents / 100;
     spenders.transfer(amountToReimburse);
-    if (remainder > 0) {
-      funders.transfer(remainder);
-    }
-    setState(CLOSED);
+    //return setState(CLOSED);
   }
 
   function disburseSAI() returns (bool) {
-    require(msg.sender == funders);
+    //require(msg.sender == funders);
     ERC20Basic saiContract = ERC20Basic(saiKovan);
     //require(saiContract.balanceOf(this) >= totalAmountInCents);
 
@@ -134,12 +129,14 @@ contract Expenses {
   }
 
   function fund() public payable returns (bool) {
-    require(msg.sender == funders);
-    uint amount = msg.value;
-    uint amountRequested = limitInCents * weiToUSDCents;
-    require(amount >= amountRequested);
-    setState(ACTIVE);
-    return true;
+    //require(msg.sender == funders);
+    if (msg.sender == funders) {
+      //uint amount = msg.value;
+     // uint amountRequested = limitInCents * weiToUSDCents;
+      //require(amount >= amountRequested);
+      setState(ACTIVE);
+      return true;
+    }
   }
 
   function getContractData() public constant returns (bytes32, bytes10, bytes32) {

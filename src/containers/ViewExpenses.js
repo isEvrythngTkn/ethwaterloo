@@ -62,7 +62,7 @@ class ViewExpenses extends Component {
           return expenseContractInstance.limitInCents();
         }).then(function(data) {
           console.log(data);
-          self.setState({limit: data.toNumber()});
+          self.setState({limit: data.toNumber()/100});
           return expenseContractInstance.funders();
         }).then(function(data){
           if (self.state.web3.utils.toChecksumAddress(data) == self.state.web3.utils.toChecksumAddress(accounts[0])) {
@@ -113,7 +113,7 @@ class ViewExpenses extends Component {
       console.log(accounts);
       expensesContract.at(self.props.match.params.expenseID).then(function(instance){
         expenseContractInstance = instance;
-        var weiToSend = self.state.limit * weiToUSD
+        var weiToSend = self.state.limit * weiToUSD;
         return expenseContractInstance.fund({from: accounts[0], value: weiToSend});
       }).then((result) => {
         self.setState({state: 'active'});
@@ -132,8 +132,6 @@ class ViewExpenses extends Component {
     this.state.web3.eth.getAccounts((error, accounts) => {
       expensesContract.at(self.props.match.params.expenseID).then(function(instance){
         expenseContractInstance = instance;
-        var weiToSend = self.state.limit * weiToUSD;
-        console.log('oy');
         return expenseContractInstance.disburseETH({from: accounts[0]});
       }).then((result) => {
         self.setState({state: 'closed'});
@@ -163,14 +161,17 @@ class ViewExpenses extends Component {
                   Balance: ${this.state.balance}<br/>
                   Total Spent: ${this.state.totalSpent}<br/>
                   { this.state.isFunder && this.state.state == 'proposed' ? <button className="fund-contract"  onClick={e => this.fundContract(e)}>Fund Contract</button> : ''}
-                  { this.state.isFunder ? <button className="disburse-contract"  onClick={e => this.disburseContract(e)}>Disburse Contract</button> : ''}
+                  { this.state.isFunder && this.state.state == 'active' ? <button className="disburse-contract"  onClick={e => this.disburseContract(e)}>Disburse Contract</button> : ''}
                 </fieldset>
                 <ul>
                   {this.state.transactions.map((transaction, index) => {
                     return <li key={index}>Amount: {transaction.amount} - Description: {transaction.description}</li>
                   })}
                 </ul>
-                <Link to={`/view/${this.props.match.params.expenseID}/new-transaction`}><button className="pure-button pure-button-primary">New Transaction</button></Link>
+                { this.state.isSpender ?
+                <Link to={`/view/${this.props.match.params.expenseID}/new-transaction`}><button className="pure-button pure-button-primary">New Transaction</button></Link> :
+                ''
+                }
               </form>
             </div>
           </div>

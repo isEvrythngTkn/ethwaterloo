@@ -113,7 +113,7 @@ class NewExpenses extends Component {
                     onChange={e => this.updateField('description', e.target.value)}
                     defaultValue={this.state.description}
                     style={{'resize': 'none'}}/>
-                  <label htmlFor="limit">Limit</label>
+                  <label htmlFor="limit">Limit in Cents</label>
                   <input
                     type="text"
                     name="limit"
