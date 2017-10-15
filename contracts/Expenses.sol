@@ -16,7 +16,6 @@ contract Expenses {
   // POTENTIAL CONTRACT STATES
   bytes8 constant PROPOSED = "proposed";
   bytes6 constant ACTIVE = "active";
-  bytes10 constant SETTLEMENT = "settlement";
   bytes6 constant CLOSED = "closed";
 
   // SAI TOKEN CONTRACTS
@@ -27,7 +26,7 @@ contract Expenses {
   uint public totalAmountInCents;
 
   // EXCHANGE RATE SHOULD BE DYNAMIC, OR USE SAI COIN
-  uint public weiToUSD = 30000000000000000;
+  uint public weiToUSDCents = 3000000000000000;
 
   struct Transaction {
     uint amountInCents;
@@ -92,6 +91,7 @@ contract Expenses {
   }
 
   function createTransaction(uint amountInCents, bytes32 transactionDescription) isFunded returns (bool) {
+    require(state != CLOSED);
     Transaction memory transaction;
     uint transactionID = transactionsCount;
     transactionsCount += 1;
@@ -107,32 +107,36 @@ contract Expenses {
     return true;
   }
 
-  function requestSettlement() stateIs(ACTIVE) returns (bool) {
-    require(msg.sender == spenders);
-    return setState(SETTLEMENT);
-  }
-
   function setState(bytes10 newState) internal returns (bool) {
     state = newState;
     return true;
   }
 
-  function disburseSAI() stateIs(SETTLEMENT) returns (bool) {
-    require(msg.sender == funders);
+  function disburseETH() {
+    //require(msg.sender == funders);
+    uint amountToReimburse = totalAmountInCents * weiToUSDCents / 100;
+    spenders.transfer(amountToReimburse);
+    //return setState(CLOSED);
+  }
+
+  function disburseSAI() returns (bool) {
+    //require(msg.sender == funders);
     ERC20Basic saiContract = ERC20Basic(saiKovan);
-    require(saiContract.balanceOf(this) >= totalAmountInCents);
+    //require(saiContract.balanceOf(this) >= totalAmountInCents);
 
     saiContract.transfer(spenders, totalAmountInCents);
     return true;
   }
 
   function fund() public payable returns (bool) {
-    require(msg.sender == funders);
-    uint amount = msg.value;
-    uint amountRequested = limitInCents * weiToUSD;
-    require(amount >= amountRequested);
-    setState(ACTIVE);
-    return true;
+    //require(msg.sender == funders);
+    if (msg.sender == funders) {
+      //uint amount = msg.value;
+     // uint amountRequested = limitInCents * weiToUSDCents;
+      //require(amount >= amountRequested);
+      setState(ACTIVE);
+      return true;
+    }
   }
 
   function getContractData() public constant returns (bytes32, bytes10, bytes32) {

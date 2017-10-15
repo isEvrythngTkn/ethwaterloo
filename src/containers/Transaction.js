@@ -64,8 +64,8 @@ class Transaction extends Component {
               <form className="pure-form pure-form-stacked">
                 <fieldset>
                   <legend>New Transaction</legend>
-                  <label htmlFor="amount">Amount</label>
-                  <input className="pure-input-1" type="text" name="amount" defaultValue={this.state.amount} onChange={e => this.setState({amount: e.target.value})}/>
+                  <label htmlFor="amount">Amount in Cents</label>
+                  <input  className="pure-input-1" type="text" name="amount" defaultValue={this.state.amount} onChange={e => this.setState({amount: e.target.value})}/>
                   <label htmlFor="description">Description</label>
                   <input className="pure-input-1" type="text" name="description" defaultValue={this.state.description} onChange={e => this.setState({description: e.target.value})}/>
                 </fieldset>
