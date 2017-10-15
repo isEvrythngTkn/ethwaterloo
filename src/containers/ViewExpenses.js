@@ -57,6 +57,18 @@ class ViewExpenses extends Component {
             funders: data[5]
           })
         });
+
+        expensesContract.at(this.props.match.params.expenseID).then(function(instance){
+          self.setState({expenseContract: instance})
+          return instance.transactionsCount();
+        }).then(function(transCount){
+          for(var i = 0; i < transCount.toNumber(); i++) {
+            self.state.expenseContract.getTransactionData(i)
+            .then((data) => {
+              self.setState({transactions: [{amount: data[0].toNumber(), description: self.state.web3.utils.hexToString(data[1])}, ...self.state.transactions]})
+            })
+          }
+        });
       });
     })
     .catch(() => {
@@ -68,7 +80,7 @@ class ViewExpenses extends Component {
     return (
       <div className="App">
         <nav className="navbar pure-menu pure-menu-horizontal">
-          <a href="#" className="pure-menu-heading pure-menu-link">Expense Report #{this.props.match.params.expenseID}</a>
+          <Link to="/" className="pure-menu-heading pure-menu-link">Expense Report #{this.props.match.params.expenseID}</Link>
         </nav>
 
         <main className="container">
@@ -84,6 +96,11 @@ class ViewExpenses extends Component {
                   Spenders: {this.state.spenders}<br/>
                   Funders: {this.state.funders}<br/>
                 </fieldset>
+                <ul>
+                  {this.state.transactions.map((transaction, index) => {
+                    return <li key={index}>Amount: {transaction.amount} - Description: {transaction.description}</li>
+                  })}
+                </ul>
                 <Link to={`/view/${this.props.match.params.expenseID}/new-transaction`}><button className="pure-button pure-button-primary">New Transaction</button></Link>
               </form>
             </div>

@@ -43,14 +43,11 @@ class Transaction extends Component {
     e.preventDefault()
     var self = this;
     this.state.web3.eth.getAccounts((error, accounts) => {
-      console.log(typeof(self.state.amount))
-      console.log(typeof(self.state.description))
       self.state.expenseContract.createTransaction(self.state.amount, self.state.description, {from: accounts[0]})
       .then((result) => {
-        self.props.history.push('/');
+        self.props.history.push(`/view/${self.props.match.params.expenseID}`);
       })
       .catch((err) => {
-        debugger;
         console.log(err)
       });
     })
