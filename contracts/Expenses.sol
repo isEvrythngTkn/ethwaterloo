@@ -149,9 +149,9 @@ contract Expenses {
   }
 
   //function getContractData() isOneOf(funders) isOneOf(spenders) constant 
-  function getContractData() external constant returns (bytes32) {
-    return state;
+  function getContractData() public constant returns (bytes32, bytes10, bytes32, uint, address[], address[]) {
+    return (name, state, description, limitInCents, spenders, funders);
   }
-
+  // change
   //function getTransactionData() isOneOf(funders) isOneOf(spenders) {}
 }

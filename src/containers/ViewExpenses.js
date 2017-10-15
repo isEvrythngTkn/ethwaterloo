@@ -35,7 +35,7 @@ class ViewExpenses extends Component {
       const contract = require('truffle-contract')
       const expensesContract = contract(ExpensesContract)
       expensesContract.setProvider(this.state.web3.currentProvider)
-      var expenseContractInstance;
+      //var expenseContractInstance;
 
       this.state.web3.eth.getAccounts((error, accounts) => {
         console.log(accounts);
@@ -46,7 +46,15 @@ class ViewExpenses extends Component {
           return instance.getContractData();
           //return instance.state.call(); 
         }).then(function(data){
-          console.log('data', data);
+          console.log(data[3]);
+          self.setState({
+            name: self.state.web3.utils.hexToString(data[0]),
+            state: self.state.web3.utils.hexToString(data[1]),
+            description: self.state.web3.utils.hexToString(data[2]),
+            limit: data[3].toNumber(),
+            spenders: data[4],
+            funders: data[5]
+          })
         });
       });
     })
@@ -68,40 +76,13 @@ class ViewExpenses extends Component {
               <form className="pure-form pure-form-stacked">
                 <fieldset>
                   <legend>Information</legend>
-                  <label htmlFor="state">State</label>
-                  <label htmlFor="name">Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    defaultValue={this.state.name}
-                    onChange={e => this.updateField('name', e.target.value)}/>
-                  <label htmlFor="description">Description</label>
-                  <textarea
-                    type="text"
-                    name="description"
-                    onChange={e => this.updateField('description', e.target.value)}
-                    defaultValue={this.state.description}
-                    style={{'resize': 'none'}}/>
-                  <label htmlFor="limit">Limit</label>
-                  <input
-                    type="text"
-                    name="limit"
-                    onChange={e => this.updateField('limit', e.target.value)}
-                    defaultValue={this.state.limit}/>
-                  <label htmlFor="spenders">Spenders</label>
-                  <input
-                    type="text"
-                    name="spenders"
-                    onChange={e => this.updateAddresses('spenders', e.target.value)}
-                    defaultValue={this.state.spenders}/>
-                  <label htmlFor="funders">Funders</label>
-                  <input
-                    type="text"
-                    name="funders"
-                    onChange={e => this.updateAddresses('funders', e.target.value)}
-                    defaultValue={this.state.funders}/>
+                  Name: {this.state.name}<br/>
+                  State: {this.state.state}<br/>
+                  Description: {this.state.description}<br/>
+                  Limit: {this.state.limit}<br/>
+                  Spenders: {this.state.spenders}<br/>
+                  Funders: {this.state.funders}<br/>
                 </fieldset>
-                <button type="submit" className="pure-button pure-button-primary" onClick={e => this.submitProposal(e)}>Submit</button>
               </form>
             </div>
           </div>
